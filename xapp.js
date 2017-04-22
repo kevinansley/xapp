@@ -170,6 +170,12 @@ window.xapp = (function(){
         for(var key in scope.obj){ 
             proxyProperty(locals, scope.obj, key);
         }
+        if(scope.obj){
+			var protos = Object.getPrototypeOf(scope.obj); 
+			Object.getOwnPropertyNames(protos).forEach(function(key){
+				proxyProperty(locals, protos, key);
+			});
+		}
         while(currentScope){
             if(!locals[currentScope.alias]) locals[currentScope.alias] = currentScope.obj;
             currentScope = currentScope.parentScope;
