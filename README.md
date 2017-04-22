@@ -23,11 +23,11 @@ _:scope_ defines your access to variables. it contains an object, and an alias.
 
 Add a scope to your project. write:
 
-    <pre><div x-app="app">
+    <div x-app="app">
       <div :scope="inner as i">
         {{text}} is the same as {{i.text}} and the same as {{app.inner.text}}
       </div>
-    </div></pre>
+    </div>
 
 the root object is accessible under the "app" keyword. you can rename easily: `<div x-app="app" :scope="this as vm">`
 
