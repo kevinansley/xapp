@@ -134,7 +134,9 @@ window.xapp = (function(){
             if(console && console.log) console.log(str);
         },
         createScope: function(obj, alias, currentScope){
-            return new scope(obj, alias, currentScope);
+            var s = new scope(obj, alias, currentScope);
+            xapp.assign(s.locals, currentScope.locals);
+            return s;
         },
         register: function(obj){ 
             registry.push(obj);
@@ -164,18 +166,18 @@ window.xapp = (function(){
     }
     // scope is an object that looks like this: {alias: "vm", obj:{...}, parentScope:{...}, } //
     function getLocals(scope){
-        var locals = {}, currentScope = scope;
+        var key, locals = {}, currentScope = scope;
         if(scope.$locals) return xapp.assign(scope.$locals, scope.locals);
         xapp.assign(locals,scope.locals);
-        for(var key in scope.obj){ 
+        for(key in scope.obj){ 
             proxyProperty(locals, scope.obj, key);
         }
         if(scope.obj){
-			var protos = Object.getPrototypeOf(scope.obj); 
-			Object.getOwnPropertyNames(protos).forEach(function(key){
-				proxyProperty(locals, protos, key);
-			});
-		}
+            var protos = Object.getPrototypeOf(scope.obj); 
+            Object.getOwnPropertyNames(protos).forEach(function(key){
+                proxyProperty(locals, protos, key);
+            });
+        }
         while(currentScope){
             if(!locals[currentScope.alias]) locals[currentScope.alias] = currentScope.obj;
             currentScope = currentScope.parentScope;
@@ -210,7 +212,6 @@ window.xapp = (function(){
         xapp.assign(newScope.locals, locals);
         return newScope;
     };
-
     // xapp.xhr("GET", "http://example.com/", data, options).success("json", ...).fail(...).send()
     xapp.xhr = (function(){
         var xhr = function(method, url, data, options){
@@ -288,7 +289,6 @@ window.xapp = (function(){
                     }
                     self.onAfter.forEach(function(x){x(request);});
                 };
-                
                 this.request = request;
             }
             request.send(data);
@@ -302,7 +302,6 @@ window.xapp = (function(){
         //returns a factory for easy access to the prototypes:
         return function(method, url, data, options){ return new xhr(method, url, data, options); };
     })();
-    
     //HTML5 Router:
     //defining routes:  xapp.route("/", showMain); xapp.route("/my/:name/:id", function(name, id){...}); xapp.route("/this/*"); xapp.route() //no parameters to start
     //executing routes: xapp.route("/"); xapp.route("/my/project/123");
@@ -371,7 +370,7 @@ window.xapp = (function(){
             var script = el.getElementsByTagName('x-script')[0], fn;
             if(script){
                 var fnstr = script.innerHTML.trim();
-                if(fnstr.indexOf("function") === 0){
+                if(fnstr.indexOf("function") === 0 || fnstr.indexOf("class") === 0){
                     fn = new Function("return " + fnstr)();
                 }
                 el.removeChild(script);
@@ -417,7 +416,6 @@ window.xapp = (function(){
             }).fail(checkCount);
         });
     }
-  
    //Built-in Registry:
    //<... :if="<test>">//
     xapp.register({
