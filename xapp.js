@@ -370,9 +370,8 @@ window.xapp = (function(){
             var script = el.getElementsByTagName('x-script')[0], fn;
             if(script){
                 var fnstr = script.innerHTML.trim();
-                if(fnstr.indexOf("function") === 0 || fnstr.indexOf("class") === 0){
-                    fn = new Function("return " + fnstr)();
-                }
+                //Expecting : function, (function, class... but not limit it:
+                fn = new Function("return " + fnstr)();
                 el.removeChild(script);
             }
             return fn;
